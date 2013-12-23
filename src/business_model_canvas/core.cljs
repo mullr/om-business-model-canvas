@@ -76,7 +76,11 @@
 (defn canvas-cell [context opts]
   (om/component
     (html [:div.table-cell
-           [:div (:title opts)]
+
+           [:div
+            [(keyword (str "span.glyphicon.canvas-cell-image" ".glyphicon-" (:icon opts)))]
+            (:title opts)]
+
            [:ul
             (for [item context]
               [:li (:value item)])]])))
@@ -87,40 +91,40 @@
     (html [:table.table.table-bordered.canvas-table
            [:tr
             [:td.tall-cell {:rowSpan 2, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Key Partners"}
+             (om/build canvas-cell context {:opts {:title "Key Partners", :icon "link"}
                                             :path [:sections :key-partners]})]
 
             [:td.short-cell {:rowSpan 1, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Key Activities"}
+             (om/build canvas-cell context {:opts {:title "Key Activities", :icon "check"}
                                             :path [:sections :key-activities]})]
 
             [:td.tall-cell {:rowSpan 2, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Value Propositions"}
+             (om/build canvas-cell context {:opts {:title "Value Propositions", :icon "gift"}
                                             :path [:sections :value-propositions]})]
 
             [:td.short-cell {:rowSpan 1, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Customer Relationships"}
+             (om/build canvas-cell context {:opts {:title "Customer Relationships", :icon "heart"}
                                             :path [:sections :customer-relationships]})]
 
             [:td.tall-cell {:rowSpan 2, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Customer Segments"}
+             (om/build canvas-cell context {:opts {:title "Customer Segments", :icon "user"}
                                             :path [:sections :customer-segments]})]]
            [:tr
             [:td.short-cell {:rowSpan 1, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Key Resources"}
+             (om/build canvas-cell context {:opts {:title "Key Resources", :icon "tree-deciduous"}
                                             :path [:sections :key-resources]})]
 
             [:td.short-cell {:rowSpan 1, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Channels"}
+             (om/build canvas-cell context {:opts {:title "Channels", :icon "send"}
                                             :path [:sections :channels]})]]
 
            [:tr
             [:td.short-cell {:rowSpan 1, :colSpan 5}
-             (om/build canvas-cell context {:opts {:title "Cost Structure"}
+             (om/build canvas-cell context {:opts {:title "Cost Structure", :icon "tags"}
                                             :path [:sections :cost-structure]})]
 
             [:td.short-cell {:rowSpan 1, :colSpan 5}
-             (om/build canvas-cell context {:opts {:title "Revenue Streams"}
+             (om/build canvas-cell context {:opts {:title "Revenue Streams", :icon "usd"}
                                             :path [:sections :revenue-streams]})]]
            ])))
 

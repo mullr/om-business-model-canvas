@@ -9,3 +9,8 @@ td.tall-cell {
 td.short-cell {
   height: 10em;
 }
+
+.canvas-cell-image {
+  float: right;
+  padding-top: 2px;
+}
