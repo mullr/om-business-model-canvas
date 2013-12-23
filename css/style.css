@@ -1,3 +1,11 @@
 .canvas-table {
   table-layout: fixed;
 }
+
+td.tall-cell {
+  height: 20em;
+}
+
+td.short-cell {
+  height: 10em;
+}

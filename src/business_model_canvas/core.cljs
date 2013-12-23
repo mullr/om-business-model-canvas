@@ -41,40 +41,40 @@
        [:div.row
         [:table.table.table-bordered.canvas-table
          [:tr
-          [:td {:rowSpan 2, :colSpan 2}
+          [:td.tall-cell {:rowSpan 2, :colSpan 2}
            (om/build canvas-cell data {:opts {:title "Key Partners"}
                                        :path [:sections :key-partners]})]
 
-          [:td {:rowSpan 1, :colSpan 2}
+          [:td.short-cell {:rowSpan 1, :colSpan 2}
            (om/build canvas-cell data {:opts {:title "Key Activities"}
                                        :path [:sections :key-activities]})]
 
-          [:td {:rowSpan 2, :colSpan 2}
+          [:td.tall-cell {:rowSpan 2, :colSpan 2}
            (om/build canvas-cell data {:opts {:title "Value Propositions"}
                                        :path [:sections :value-propositions]})]
 
-          [:td {:rowSpan 1, :colSpan 2}
+          [:td.short-cell {:rowSpan 1, :colSpan 2}
            (om/build canvas-cell data {:opts {:title "Customer Relationships"}
                                        :path [:sections :customer-relationships]})]
 
-          [:td {:rowSpan 2, :colSpan 2}
+          [:td.tall-cell {:rowSpan 2, :colSpan 2}
           (om/build canvas-cell data {:opts {:title "Customer Segments"}
                                        :path [:sections :customer-segments]})]]
          [:tr
-          [:td {:rowSpan 1, :colSpan 2}
+          [:td.short-cell {:rowSpan 1, :colSpan 2}
           (om/build canvas-cell data {:opts {:title "Key Resources"}
                                        :path [:sections :key-resources]})]
 
-          [:td {:rowSpan 1, :colSpan 2}
+          [:td.short-cell {:rowSpan 1, :colSpan 2}
           (om/build canvas-cell data {:opts {:title "Channels"}
                                        :path [:sections :channels]})]]
 
          [:tr
-          [:td {:rowSpan 1, :colSpan 5}
+          [:td.short-cell {:rowSpan 1, :colSpan 5}
            (om/build canvas-cell data {:opts {:title "Cost Structure"}
                                        :path [:sections :cost-structure]})]
 
-          [:td {:rowSpan 1, :colSpan 5}
+          [:td.short-cell {:rowSpan 1, :colSpan 5}
            (om/build canvas-cell data {:opts {:title "Revenue Streams"}
                                        :path [:sections :revenue-streams]})]]
 
