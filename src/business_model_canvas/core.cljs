@@ -73,58 +73,62 @@
                                                         :path [:version]})]])))
 
 
-(defn canvas-cell [context opts]
+(defn canvas-cell [context {:keys [title icon key]}]
   (om/component
     (html [:div.table-cell
 
            [:div
-            [(keyword (str "span.glyphicon.canvas-cell-image" ".glyphicon-" (:icon opts)))]
-            (:title opts)]
+            [(keyword (str "span.glyphicon.canvas-cell-image" ".glyphicon-" icon))]
+            title]
 
            [:ul
             (for [item context]
-              [:li (:value item)])]])))
+              [:li (:value item)])]
+
+           [:button.btn.btn-default.btn-xs.add-item-button
+            {:onClick #(post-event context [:add-item key "~new item~"])}
+            [:span.glyphicon.glyphicon-plus]]])))
 
 
 (defn canvas-table [context opts]
   (om/component
     (html [:table.table.table-bordered.canvas-table
            [:tr
-            [:td.tall-cell {:rowSpan 2, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Key Partners", :icon "link"}
+            [:td.canvas-cell.tall-cell {:rowSpan 2, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Key Partners", :icon "link", :key :key-partners}
                                             :path [:sections :key-partners]})]
 
-            [:td.short-cell {:rowSpan 1, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Key Activities", :icon "check"}
+            [:td.canvas-cell.short-cell {:rowSpan 1, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Key Activities", :icon "check", :key :key-activities}
                                             :path [:sections :key-activities]})]
 
-            [:td.tall-cell {:rowSpan 2, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Value Propositions", :icon "gift"}
+            [:td.canvas-cell.tall-cell {:rowSpan 2, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Value Propositions", :icon "gift", :key :value-propositions}
                                             :path [:sections :value-propositions]})]
 
-            [:td.short-cell {:rowSpan 1, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Customer Relationships", :icon "heart"}
+            [:td.canvas-cell.short-cell {:rowSpan 1, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Customer Relationships", :icon "heart", :key :customer-relationships}
                                             :path [:sections :customer-relationships]})]
 
-            [:td.tall-cell {:rowSpan 2, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Customer Segments", :icon "user"}
+            [:td.canvas-cell.tall-cell {:rowSpan 2, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Customer Segments", :icon "user", :key :customer-segments}
                                             :path [:sections :customer-segments]})]]
            [:tr
-            [:td.short-cell {:rowSpan 1, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Key Resources", :icon "tree-deciduous"}
+            [:td.canvas-cell.short-cell {:rowSpan 1, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Key Resources", :icon "tree-deciduous", :key :key-resources}
                                             :path [:sections :key-resources]})]
 
-            [:td.short-cell {:rowSpan 1, :colSpan 2}
-             (om/build canvas-cell context {:opts {:title "Channels", :icon "send"}
+            [:td.canvas-cell.short-cell {:rowSpan 1, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Channels", :icon "send", :key :channels}
                                             :path [:sections :channels]})]]
 
            [:tr
-            [:td.short-cell {:rowSpan 1, :colSpan 5}
-             (om/build canvas-cell context {:opts {:title "Cost Structure", :icon "tags"}
+            [:td.canvas-cell.short-cell {:rowSpan 1, :colSpan 5}
+             (om/build canvas-cell context {:opts {:title "Cost Structure", :icon "tags", :key :cost-structure}
                                             :path [:sections :cost-structure]})]
 
-            [:td.short-cell {:rowSpan 1, :colSpan 5}
-             (om/build canvas-cell context {:opts {:title "Revenue Streams", :icon "usd"}
+            [:td.canvas-cell.short-cell {:rowSpan 1, :colSpan 5}
+             (om/build canvas-cell context {:opts {:title "Revenue Streams", :icon "usd", :key :revenue-streams}
                                             :path [:sections :revenue-streams]})]]
            ])))
 

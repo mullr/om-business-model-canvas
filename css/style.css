@@ -14,3 +14,15 @@ td.short-cell {
   float: right;
   padding-top: 2px;
 }
+
+.add-item-button span {
+  padding-bottom: 3px;
+}
+
+.add-item-button {
+  display: none;
+}
+
+.canvas-cell:hover .add-item-button {
+  display: block;
+}
