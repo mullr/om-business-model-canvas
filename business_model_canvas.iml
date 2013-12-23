@@ -15,6 +15,7 @@
     <orderEntry type="library" name="Leiningen: om:0.1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.5.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojurescript:0.0-2127" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/core.async:0.1.267.0-0d7780-alpha" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.nrepl:0.2.3" level="project" />
     <orderEntry type="library" name="Leiningen: ritz/ritz-nrepl-middleware:0.7.0" level="project" />
     <orderEntry type="library" name="Leiningen: sablono:0.1.1" level="project" />

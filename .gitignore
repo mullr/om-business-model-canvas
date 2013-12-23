@@ -10,3 +10,4 @@ pom.xml.asc
 .idea
 main.js
 out
+main.js.map

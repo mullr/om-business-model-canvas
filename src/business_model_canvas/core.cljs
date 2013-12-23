@@ -1,128 +1,145 @@
 (ns business-model-canvas.core
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [sablono.core :as html :refer [html] :include-macros true]))
+            [sablono.core :as html :refer [html] :include-macros true]
+            [cljs.core.async :refer [put! <! chan]]))
 
 (set! *print-fn* #(.log js/console %))
 
-(defn header-box [data opts]
+;;; Canvas model
+
+(def blank-canvas
+  {:designed-for {:value "A customer"}
+   :designed-by  {:value "ME!!!!!"}
+   :date         {:value "Today"}
+   :version      {:value "7"}
+
+   :sections
+   {:key-partners []
+    :key-activities []
+    :key-resources []
+    :value-propositions []
+    :customer-relationships []
+    :channels []
+    :customer-segments []
+    :cost-structure []
+    :revenue-streams []}})
+
+(defn add-item [canvas section title]
+  (update-in canvas [:sections section]
+             conj {:value title}))
+
+;;; App model and events
+
+(defn make-app []
+  {:canvas blank-canvas
+   :ui-events-chan (chan)})
+
+(defn post-event [context event]
+  (let [ui-events-chan (-> (meta context) :om.core/state deref :ui-events-chan)]
+    (put! ui-events-chan event)))
+
+(defn handle-event! [root-context [type & params]]
+  (case type
+    :add-item (let [[section title] params]
+                (om/update! root-context [:canvas]
+                            add-item section title))
+    root-context))
+
+;;; UI
+
+(defn header-box [context opts]
   (om/component
     (html [:div.header-box
            [:div.row (:title opts)]
-           [:div.row (-> data :value)]])))
+           [:div.row (-> context :value)]])))
 
-(defn canvas-cell [data opts]
+(defn header [context opts]
+  (om/component
+    (html [:div.row
+           [:div.col-md-4.title "The Business Model Canvas"]
+
+           [:div.col-md-3 (om/build header-box context {:opts {:title "Designed For:"}
+                                                        :path [:designed-for]})]
+
+           [:div.col-md-3 (om/build header-box context {:opts {:title "Designed By:"}
+                                                        :path [:designed-by]})]
+
+           [:div.col-md-1 (om/build header-box context {:opts {:title "Date:"}
+                                                        :path [:date]})]
+
+           [:div.col-md-1 (om/build header-box context {:opts {:title "Version:"}
+                                                        :path [:version]})]])))
+
+
+(defn canvas-cell [context opts]
   (om/component
     (html [:div.table-cell
            [:div (:title opts)]
            [:ul
-            (for [item data]
+            (for [item context]
               [:li (:value item)])]])))
 
-(defn root [data]
+
+(defn canvas-table [context opts]
   (om/component
-    (html
-      [:div.container
-       [:div.row
-        [:div.col-md-4.title "The Business Model Canvas"]
+    (html [:table.table.table-bordered.canvas-table
+           [:tr
+            [:td.tall-cell {:rowSpan 2, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Key Partners"}
+                                            :path [:sections :key-partners]})]
 
-        [:div.col-md-3 (om/build header-box data {:opts {:title "Designed For:"}
-                                                  :path [:designed-for]})]
+            [:td.short-cell {:rowSpan 1, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Key Activities"}
+                                            :path [:sections :key-activities]})]
 
-        [:div.col-md-3 (om/build header-box data {:opts {:title "Designed By:"}
-                                                  :path [:designed-by]})]
+            [:td.tall-cell {:rowSpan 2, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Value Propositions"}
+                                            :path [:sections :value-propositions]})]
 
-        [:div.col-md-1 (om/build header-box data {:opts {:title "Date:"}
-                                                  :path [:date]})]
+            [:td.short-cell {:rowSpan 1, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Customer Relationships"}
+                                            :path [:sections :customer-relationships]})]
 
-        [:div.col-md-1 (om/build header-box data {:opts {:title "Version:"}
-                                                  :path [:version]})]]
+            [:td.tall-cell {:rowSpan 2, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Customer Segments"}
+                                            :path [:sections :customer-segments]})]]
+           [:tr
+            [:td.short-cell {:rowSpan 1, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Key Resources"}
+                                            :path [:sections :key-resources]})]
 
-       [:div.row
-        [:table.table.table-bordered.canvas-table
-         [:tr
-          [:td.tall-cell {:rowSpan 2, :colSpan 2}
-           (om/build canvas-cell data {:opts {:title "Key Partners"}
-                                       :path [:sections :key-partners]})]
+            [:td.short-cell {:rowSpan 1, :colSpan 2}
+             (om/build canvas-cell context {:opts {:title "Channels"}
+                                            :path [:sections :channels]})]]
 
-          [:td.short-cell {:rowSpan 1, :colSpan 2}
-           (om/build canvas-cell data {:opts {:title "Key Activities"}
-                                       :path [:sections :key-activities]})]
+           [:tr
+            [:td.short-cell {:rowSpan 1, :colSpan 5}
+             (om/build canvas-cell context {:opts {:title "Cost Structure"}
+                                            :path [:sections :cost-structure]})]
 
-          [:td.tall-cell {:rowSpan 2, :colSpan 2}
-           (om/build canvas-cell data {:opts {:title "Value Propositions"}
-                                       :path [:sections :value-propositions]})]
+            [:td.short-cell {:rowSpan 1, :colSpan 5}
+             (om/build canvas-cell context {:opts {:title "Revenue Streams"}
+                                            :path [:sections :revenue-streams]})]]
+           ])))
 
-          [:td.short-cell {:rowSpan 1, :colSpan 2}
-           (om/build canvas-cell data {:opts {:title "Customer Relationships"}
-                                       :path [:sections :customer-relationships]})]
+(defn root [context]
+  (reify
+    om/IWillMount
+    (will-mount [_ owner]
+      (let [{:keys [ui-events-chan]} context]
+        (go (while true
+              (handle-event! context (<! ui-events-chan))))))
+    om/IRender
+    (render [_ owner]
+      (html
+        [:div.container
+         (om/build header context [:canvas])
+         [:button {:onClick #(post-event context [:add-item :key-activities "~new item~"])}
+          "Add an item"]
+         [:div.row
+          (om/build canvas-table context [:canvas])]]))
+    ))
 
-          [:td.tall-cell {:rowSpan 2, :colSpan 2}
-          (om/build canvas-cell data {:opts {:title "Customer Segments"}
-                                       :path [:sections :customer-segments]})]]
-         [:tr
-          [:td.short-cell {:rowSpan 1, :colSpan 2}
-          (om/build canvas-cell data {:opts {:title "Key Resources"}
-                                       :path [:sections :key-resources]})]
-
-          [:td.short-cell {:rowSpan 1, :colSpan 2}
-          (om/build canvas-cell data {:opts {:title "Channels"}
-                                       :path [:sections :channels]})]]
-
-         [:tr
-          [:td.short-cell {:rowSpan 1, :colSpan 5}
-           (om/build canvas-cell data {:opts {:title "Cost Structure"}
-                                       :path [:sections :cost-structure]})]
-
-          [:td.short-cell {:rowSpan 1, :colSpan 5}
-           (om/build canvas-cell data {:opts {:title "Revenue Streams"}
-                                       :path [:sections :revenue-streams]})]]
-
-         ]]]
-      )))
-
-(def doc
-  (atom
-    {:designed-for {:value "A customer"}
-     :designed-by  {:value "ME!!!!!"}
-     :date         {:value "Today"}
-     :version      {:value "7"}
-
-     :sections
-     {:key-partners
-      [{:value "Item 1"}
-       {:value "Item 2"}]
-
-      :key-activities
-      [{:value "Item 1"}
-       {:value "Item 2"}]
-
-      :key-resources
-      [{:value "Item 1"}
-       {:value "Item 2"}]
-
-      :value-propositions
-      [{:value "Item 1"}
-       {:value "Item 2"}]
-
-      :customer-relationships
-      [{:value "Item 1"}
-       {:value "Item 2"}]
-
-      :channels
-      [{:value "Item 1"}
-       {:value "Item 2"}]
-
-      :customer-segments
-      [{:value "Item 1"}
-       {:value "Item 2"}]
-
-      :cost-structure
-      [{:value "Item 1"}
-       {:value "Item 2"}]
-
-      :revenue-streams
-      [{:value "Item 1"}
-       {:value "Item 2"}]}}))
-
-(om/root doc root js/document.body)
+(om/root (make-app) root js/document.body)
