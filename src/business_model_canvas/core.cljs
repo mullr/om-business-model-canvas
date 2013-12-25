@@ -42,34 +42,45 @@
 
 (defn handle-event! [root-context [type & params]]
   (case type
-    :add-item (let [[section title] params]
-                (om/update! root-context [:canvas]
-                            add-item section title))
+    :add-item
+    (let [[section title] params]
+      (om/update! root-context [:canvas]
+                  add-item section title))
+
+    :set-document-property
+    (let [[key value] params]
+      (om/update! root-context [:canvas]
+                  assoc key {:value value}))
+
     root-context))
 
 ;;; UI
 
-(defn header-box [context opts]
+(defn header-box [context {:keys [title key] :as opts}]
   (om/component
     (html [:div.header-box
-           [:div.row (:title opts)]
-           [:div.row (-> context :value)]])))
+           [:div.row title]
+           ;[:div.row (-> context :value)]
+           (dom/input #js {:value (-> context :value)
+                           :onChange
+                           #(post-event context
+                                        [:set-document-property key (-> % .-target .-value)])})])))
 
 (defn header [context opts]
   (om/component
     (html [:div.row
            [:div.col-md-4.title "The Business Model Canvas"]
-
-           [:div.col-md-3 (om/build header-box context {:opts {:title "Designed For:"}
+           
+           [:div.col-md-3 (om/build header-box context {:opts {:title "Designed For:", :key :designed-for}
                                                         :path [:designed-for]})]
 
-           [:div.col-md-3 (om/build header-box context {:opts {:title "Designed By:"}
+           [:div.col-md-3 (om/build header-box context {:opts {:title "Designed By:", :key :designed-by}
                                                         :path [:designed-by]})]
 
-           [:div.col-md-1 (om/build header-box context {:opts {:title "Date:"}
+           [:div.col-md-1 (om/build header-box context {:opts {:title "Date:", :key :date}
                                                         :path [:date]})]
 
-           [:div.col-md-1 (om/build header-box context {:opts {:title "Version:"}
+           [:div.col-md-1 (om/build header-box context {:opts {:title "Version:", :key :version}
                                                         :path [:version]})]])))
 
 
