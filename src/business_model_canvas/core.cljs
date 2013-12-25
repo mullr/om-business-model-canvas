@@ -155,8 +155,6 @@
       (html
         [:div.container
          (om/build header context [:canvas])
-         [:button {:onClick #(post-event context [:add-item :key-activities "~new item~"])}
-          "Add an item"]
          [:div.row
           (om/build canvas-table context [:canvas])]]))
     ))
