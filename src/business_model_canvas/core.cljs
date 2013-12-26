@@ -111,8 +111,10 @@
             title]
 
            [:ul
-            (for [item context]
-              [:li (:value item)])]
+            (map-indexed (fn [n item]
+                           [:li
+                            (om/build editable-label context [n])])
+                         context)]
 
            [:button.btn.btn-default.btn-xs.add-item-button
             {:onClick #(post-event context [:add-item key "~new item~"])}
