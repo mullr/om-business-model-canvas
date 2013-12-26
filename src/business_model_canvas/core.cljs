@@ -88,7 +88,7 @@
   (om/component
     (html [:div.row
            [:div.col-md-4.title "The Business Model Canvas"]
-           
+
            [:div.col-md-3 (om/build header-box context {:opts {:title "Designed For:", :key :designed-for}
                                                         :path [:designed-for]})]
 
@@ -101,11 +101,9 @@
            [:div.col-md-1 (om/build header-box context {:opts {:title "Version:", :key :version}
                                                         :path [:version]})]])))
 
-
 (defn canvas-cell [context {:keys [title icon key]}]
   (om/component
     (html [:div.table-cell
-
            [:div
             [(keyword (str "span.glyphicon.canvas-cell-image" ".glyphicon-" icon))]
             title]
@@ -119,7 +117,6 @@
            [:button.btn.btn-default.btn-xs.add-item-button
             {:onClick #(post-event :add-item context {:value "New Item"})}
             [:span.glyphicon.glyphicon-plus]]])))
-
 
 (defn canvas-table [context opts]
   (om/component
