@@ -49,15 +49,40 @@
     app))
 
 ;;; UI
+(defn start-editing-label! [owner]
+  (om/set-state! owner [:editing] true))
 
-(defn header-box [context {:keys [title key] :as opts}]
+(defn stop-editing-label! [owner]
+  (om/set-state! owner [:editing] false))
+
+;; keycodes
+(def enter 13)
+(def esc 27)
+
+(defn editable-label [{:keys [value] :as context} opts]
+  (reify
+    om/IInitState
+    (init-state [ _ owner] {:editing false})
+
+    om/IRender
+    (render [_ owner]
+      (html
+        [:div {:onDoubleClick #(start-editing-label! owner)}
+         (if (om/get-state owner [:editing])
+           (dom/input #js {:className "form-control"
+                           :value value
+                           :autoFocus true
+                           :onChange #(post-event :set-value context (.. % -target -value))
+                           :onBlur #(stop-editing-label! owner)
+                           :onKeyUp #(if (#{enter esc} (.-keyCode %))
+                                      (stop-editing-label! owner))})
+           value)]))))
+
+(defn header-box [context {:keys [title] :as opts}]
   (om/component
     (html [:div.header-box
            [:div.row title]
-           (dom/input #js {:value (-> context :value)
-                           :onChange
-                           #(post-event :set-value context
-                                        {:value (-> % .-target .-value)})})])))
+           (om/build editable-label context)])))
 
 (defn header [context opts]
   (om/component
