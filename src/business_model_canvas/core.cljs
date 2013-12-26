@@ -26,33 +26,27 @@
     :cost-structure []
     :revenue-streams []}})
 
-(defn add-item [canvas section title]
-  (update-in canvas [:sections section]
-             conj {:value title}))
-
 ;;; App model and events
 
 (defn make-app []
   {:canvas blank-canvas
    :ui-events-chan (chan)})
 
-(defn post-event [context event]
-  (let [ui-events-chan (-> (meta context) :om.core/state deref :ui-events-chan)]
-    (put! ui-events-chan event)))
+(defn post-event [type context opts]
+  (let [{state-atom :om.core/state, path :om.core/path} (meta context)
+        ui-events-chan (:ui-events-chan @state-atom)]
+    (put! ui-events-chan [type path opts])))
 
-(defn handle-event! [root-context [type & params]]
+(defn handle-event [app [type path opts :as e]]
   (case type
     :add-item
-    (let [[section title] params]
-      (om/update! root-context [:canvas]
-                  add-item section title))
+    (update-in app path
+               conj opts)
 
-    :set-document-property
-    (let [[key value] params]
-      (om/update! root-context [:canvas]
-                  assoc key {:value value}))
-
-    root-context))
+    :set-value
+    (update-in app path
+               assoc :value (:value opts))
+    app))
 
 ;;; UI
 
@@ -60,11 +54,10 @@
   (om/component
     (html [:div.header-box
            [:div.row title]
-           ;[:div.row (-> context :value)]
            (dom/input #js {:value (-> context :value)
                            :onChange
-                           #(post-event context
-                                        [:set-document-property key (-> % .-target .-value)])})])))
+                           #(post-event :set-value context
+                                        {:value (-> % .-target .-value)})})])))
 
 (defn header [context opts]
   (om/component
@@ -147,9 +140,12 @@
   (reify
     om/IWillMount
     (will-mount [_ owner]
-      (let [{:keys [ui-events-chan]} context]
+      (let [{:keys [ui-events-chan]} context
+            state-atom (:om.core/state (meta context))]
         (go (while true
-              (handle-event! context (<! ui-events-chan))))))
+              (swap! state-atom
+                     handle-event (<! ui-events-chan))))))
+
     om/IRender
     (render [_ owner]
       (html
