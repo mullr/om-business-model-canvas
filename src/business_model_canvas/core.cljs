@@ -117,7 +117,7 @@
                          context)]
 
            [:button.btn.btn-default.btn-xs.add-item-button
-            {:onClick #(post-event context [:add-item key "~new item~"])}
+            {:onClick #(post-event :add-item context {:value "New Item"})}
             [:span.glyphicon.glyphicon-plus]]])))
 
 
