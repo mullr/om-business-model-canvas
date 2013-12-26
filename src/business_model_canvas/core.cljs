@@ -32,20 +32,20 @@
   {:canvas blank-canvas
    :ui-events-chan (chan)})
 
-(defn post-event [type context opts]
+(defn post-event [type context param]
   (let [{state-atom :om.core/state, path :om.core/path} (meta context)
         ui-events-chan (:ui-events-chan @state-atom)]
-    (put! ui-events-chan [type path opts])))
+    (put! ui-events-chan [type path param])))
 
-(defn handle-event [app [type path opts :as e]]
+(defn handle-event [app [type path param :as e]]
   (case type
     :add-item
-    (update-in app path
-               conj opts)
+    (update-in app path conj param)
 
     :set-value
-    (update-in app path
-               assoc :value (:value opts))
+    (update-in app path assoc :value param)
+
+    ;; default - do nothing
     app))
 
 ;;; UI
