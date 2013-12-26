@@ -168,7 +168,24 @@
     om/IWillMount
     (will-mount [_ owner]
       (let [{:keys [ui-events-chan]} context
-            state-atom (:om.core/state (meta context))]
+            state-atom (:om.core/state (meta context))
+            firebase-ref (js/Firebase. "https://mullr.firebaseio.com/testdoc")]
+
+        ;; Synchronize the document to firebase.
+        ;; This could probably be more efficient, by using the child added/moved/changed/removed
+        ;; events.
+        ;;  - https://www.firebase.com/docs/reading-data.html
+        ;;  - http://angularfire.com/source.html
+        (.on firebase-ref "value"
+          (fn [snapshot]
+            (let [new-state (js->clj (.val snapshot) :keywordize-keys true)]
+              (swap! state-atom assoc :canvas new-state))))
+
+        (add-watch state-atom :update-firebase-watch
+           (fn [key ref old-state new-state]
+             (if-not (= old-state new-state)
+               (.set firebase-ref (clj->js (:canvas new-state))))))
+
         (go (while true
               (swap! state-atom
                      handle-event (<! ui-events-chan))))))
